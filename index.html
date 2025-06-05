@@ -1,0 +1,2039 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Agri-Dairy Kenya</title>
+        <link rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+        <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+        <style>
+        :root {
+            --primary: #2c7873;
+            --secondary: #6fb98f;
+            --accent: #004445;
+            --light: #f8f9fa;
+            --dark: #333;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: #f5f7fa;
+            color: var(--dark);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            background: var(--accent);
+            color: white;
+            position: fixed;
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+
+        .sidebar.collapsed {
+            width: 70px;
+        }
+
+        .sidebar-header {
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-header h2 {
+            font-size: 1.2rem;
+            margin-left: 10px;
+            white-space: nowrap;
+            display: inline-block;
+        }
+
+        .sidebar.collapsed .sidebar-header h2 {
+            display: none;
+        }
+
+        .sidebar-nav {
+            padding: 1rem 0;
+        }
+
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            padding: 0.8rem 1.5rem;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .sidebar-nav a:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-nav a i {
+            margin-right: 10px;
+            font-size: 1.1rem;
+        }
+
+        .sidebar.collapsed .sidebar-nav a span {
+            display: none;
+        }
+
+        .sidebar-nav .active {
+            background: rgba(255, 255, 255, 0.2);
+            border-left: 4px solid var(--secondary);
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 250px;
+            transition: all 0.3s;
+            min-height: 100vh;
+        }
+
+        .main-content.expanded {
+            margin-left: 70px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            background: white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .menu-toggle {
+            background: none;
+            border: none;
+            font-size: 1.3rem;
+            cursor: pointer;
+            color: var(--dark);
+        }
+
+        .page-title {
+            font-size: 1.5rem;
+            color: var(--accent);
+        }
+
+        /* Dashboard Cards */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1rem;
+            padding: 1.5rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .bg-primary { background: var(--primary); }
+        .bg-success { background: var(--success); }
+        .bg-warning { background: var(--warning); }
+        .bg-danger { background: var(--danger); }
+
+        .card h3 {
+            font-size: 1rem;
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+
+        .card p {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .card small {
+            font-size: 0.8rem;
+            color: #777;
+        }
+
+        /* Forms */
+        .form-container {
+            max-width: 800px;
+            margin: 1.5rem auto;
+            padding: 1.5rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.7rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .btn {
+            padding: 0.7rem 1.2rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+            margin-left: 10px;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .btn-warning {
+            background: var(--warning);
+            color: var(--dark);
+        }
+
+        .btn-warning:hover {
+            background: #e0a800;
+        }
+
+        /* Tables */
+        .table-container {
+            padding: 1.5rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            overflow-x: auto;
+            margin: 1.5rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 0.8rem;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background: #f5f7fa;
+            font-weight: 500;
+            color: #555;
+        }
+
+        tr:hover {
+            background: #f9f9f9;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.3rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: white;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+
+        .action-buttons button {
+            padding: 0.3rem 0.6rem;
+            font-size: 0.8rem;
+        }
+
+        /* Charts */
+        .chart-container {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 70px;
+            }
+            .sidebar.collapsed {
+                width: 0;
+            }
+            .main-content {
+                margin-left: 70px;
+            }
+            .main-content.expanded {
+                margin-left: 0;
+            }
+        }
+    </style>
+    </head>
+    <body>
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <i class="fas fa-cow"></i>
+                <h2>AGRI-DAIRY</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#" class="active" data-page="dashboard">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" data-page="cattle">
+                    <i class="fas fa-cow"></i>
+                    <span>Cattle</span>
+                </a>
+                <a href="#" data-page="milk">
+                    <i class="fas fa-wine-bottle"></i>
+                    <span>Milk</span>
+                </a>
+                <a href="#" data-page="health">
+                    <i class="fas fa-syringe"></i>
+                    <span>Health</span>
+                </a>
+                <a href="#" data-page="feed">
+                    <i class="fas fa-carrot"></i>
+                    <span>Feed</span>
+                </a>
+                <a href="#" data-page="nutrition">
+                    <i class="fas fa-apple-alt"></i>
+                    <span>Nutrition</span>
+                </a>
+                <a href="#" data-page="financials">
+                    <i class="fas fa-dollar-sign"></i>
+                    <span>Financials</span>
+                </a>
+                <a href="#" data-page="reports">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Reports</span>
+                </a>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content" id="main-content">
+            <header class="header">
+                <button class="menu-toggle" id="menu-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1 class="page-title" id="page-title">Dashboard</h1>
+                <div>
+                    <button class="btn btn-primary" id="quick-add">
+                        <i class="fas fa-plus"></i> Add Record
+                    </button>
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <div id="page-content">
+                <!-- Loaded dynamically -->
+            </div>
+        </div>
+
+        <script>
+        // ===== DATA STORAGE =====
+        let cattleData = JSON.parse(localStorage.getItem('cattleData')) || [];
+        let milkData = JSON.parse(localStorage.getItem('milkData')) || [];
+        let healthData = JSON.parse(localStorage.getItem('healthData')) || [];
+        let feedData = JSON.parse(localStorage.getItem('feedData')) || [];
+        let nutritionData = JSON.parse(localStorage.getItem('nutritionData')) || [];
+        let financialData = JSON.parse(localStorage.getItem('financialData')) || [];
+
+        // Sample data if empty
+        if (cattleData.length === 0) {
+            cattleData = [
+                { id: 'COW001', name: 'Betsy', breed: 'Friesian', status: 'Lactating', lastHeatDate: '2023-05-15' },
+            ];
+            localStorage.setItem('cattleData', JSON.stringify(cattleData));
+        }
+
+        if (milkData.length === 0) {
+            milkData = [
+                // { date: '2023-06-01', cowId: 'COW001', amount: '12.5', time: '06:30', notes: 'Morning milking' },
+           
+            ];
+            localStorage.setItem('milkData', JSON.stringify(milkData));
+        }
+
+        // ===== INITIALIZE APP =====
+        document.addEventListener('DOMContentLoaded', function() {
+            loadPage('dashboard');
+            setupEventListeners();
+        });
+
+        // ===== EVENT LISTENERS =====
+        function setupEventListeners() {
+            // Sidebar navigation
+            document.querySelectorAll('.sidebar-nav a').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const page = this.getAttribute('data-page');
+                    loadPage(page);
+                    
+                    // Update active state
+                    document.querySelectorAll('.sidebar-nav a').forEach(a => {
+                        a.classList.remove('active');
+                    });
+                    this.classList.add('active');
+                });
+            });
+
+            // Toggle sidebar
+            document.getElementById('menu-toggle').addEventListener('click', function() {
+                document.getElementById('sidebar').classList.toggle('collapsed');
+                document.getElementById('main-content').classList.toggle('expanded');
+            });
+
+            // Quick add button
+            document.getElementById('quick-add').addEventListener('click', function() {
+                showQuickAddMenu();
+            });
+        }
+
+        // ===== FORM FUNCTIONS =====
+        function hideForm(button) {
+            const form = button.closest('.form-container');
+            form.style.display = 'none';
+        }
+
+        function showForm() {
+            const form = document.querySelector('.form-container');
+            if (form) form.style.display = 'block';
+        }
+
+        // ===== PAGE LOADING =====
+        function loadPage(page) {
+            document.getElementById('page-title').textContent = page.charAt(0).toUpperCase() + page.slice(1);
+            
+            switch(page) {
+                case 'dashboard':
+                    loadDashboard();
+                    break;
+                case 'cattle':
+                    loadCattlePage();
+                    break;
+                case 'milk':
+                    loadMilkPage();
+                    break;
+                case 'health':
+                    loadHealthPage();
+                    break;
+                case 'feed':
+                    loadFeedPage();
+                    break;
+                case 'nutrition':
+                    loadNutritionPage();
+                    break;
+                case 'financials':
+                    loadFinancialsPage();
+                    break;
+                case 'reports':
+                    loadReportsPage();
+                    break;
+                default:
+                    loadDashboard();
+            }
+        }
+
+        // ===== DASHBOARD PAGE =====
+        function loadDashboard() {
+            const lactatingCows = cattleData.filter(cow => cow.status === 'Lactating').length;
+            const cowsInHeat = cattleData.filter(cow => {
+                const lastHeat = cow.lastHeatDate ? new Date(cow.lastHeatDate) : null;
+                if (!lastHeat) return false;
+                const daysSinceHeat = (new Date() - lastHeat) / (1000 * 60 * 60 * 24);
+                return daysSinceHeat >= 18 && daysSinceHeat <= 24; // Heat cycle range
+            }).length;
+
+            // Calculate weekly milk production
+            const weeklyMilk = {};
+            const today = new Date();
+            for (let i = 6; i >= 0; i--) {
+                const date = new Date(today);
+                date.setDate(date.getDate() - i);
+                const dateStr = date.toISOString().split('T')[0];
+                const dailyMilk = milkData
+                    .filter(record => record.date === dateStr)
+                    .reduce((sum, record) => sum + parseFloat(record.amount), 0);
+                weeklyMilk[dateStr] = dailyMilk;
+            }
+
+            const html = `
+                <div class="card-grid">
+                    <div class="card">
+                        <div class="card-icon bg-primary">
+                            <i class="fas fa-cow"></i>
+                        </div>
+                        <h3>Total Cattle</h3>
+                        <p>${cattleData.length}</p>
+                        <small>${lactatingCows} lactating</small>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon bg-success">
+                            <i class="fas fa-wine-bottle"></i>
+                        </div>
+                        <h3>Today's Milk (L)</h3>
+                        <p>${calculateTodaysMilk()}</p>
+                        <small>${milkData.length} records</small>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon bg-warning">
+                            <i class="fas fa-heartbeat"></i>
+                        </div>
+                        <h3>Cows in Heat</h3>
+                        <p>${cowsInHeat}</p>
+                        <small>Needs attention</small>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon bg-danger">
+                            <i class="fas fa-syringe"></i>
+                        </div>
+                        <h3>Health Alerts</h3>
+                        <p>${healthData.filter(h => h.status === 'Pending').length}</p>
+                        <small>Pending treatments</small>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <h3>Weekly Milk Production (Liters)</h3>
+                    <div id="milkChart"></div>
+                </div>
+
+                <div class="table-container">
+                    <h3>Recent Milk Records</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Cow ID</th>
+                                <th>Amount (L)</th>
+                                <th>Time</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${milkData.slice(-5).reverse().map((record, index) => `
+                                <tr>
+                                    <td>${record.date}</td>
+                                    <td>${record.cowId}</td>
+                                    <td>${record.amount}</td>
+                                    <td>${record.time}</td>
+                                    <td class="action-buttons">
+                                        <button class="btn btn-warning btn-sm" onclick="editMilkRecord(${milkData.length - 1 - index})">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-danger btn-sm" onclick="deleteMilkRecord(${milkData.length - 1 - index})">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+
+            document.getElementById('page-content').innerHTML = html;
+
+            // Render milk production chart
+            renderMilkChart(weeklyMilk);
+        }
+
+        // ===== CATTLE PAGE =====
+        function loadCattlePage() {
+            const html = `
+                <div class="form-container" style="display: none;" id="cattle-form">
+                    <h2 id="cattle-form-title">Add New Cattle</h2>
+                    <form id="add-cattle-form">
+                        <input type="hidden" id="cattle-edit-index" value="-1">
+                        <div class="form-group">
+                            <label class="form-label">Cow ID</label>
+                            <input type="text" class="form-control" name="id" id="cattle-id" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Name</label>
+                            <input type="text" class="form-control" name="name" id="cattle-name">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Breed</label>
+                            <select class="form-control" name="breed" id="cattle-breed" required>
+                                <option value="Friesian">Friesian</option>
+                                <option value="Ayrshire">Ayrshire</option>
+                                <option value="Jersey">Jersey</option>
+                                <option value="Sahiwal">Sahiwal</option>
+                                <option value="Borana">Borana</option>
+                                <option value="Zebu">Zebu</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Status</label>
+                            <select class="form-control" name="status" id="cattle-status" required>
+                                <option value="Lactating">Lactating</option>
+                                <option value="Dry">Dry</option>
+                                <option value="Pregnant">Pregnant</option>
+                                <option value="Heifer">Heifer</option>
+                                <option value="Bull">Bull</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Date of Birth</label>
+                            <input type="date" class="form-control" name="dob" id="cattle-dob">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Last Calving Date</label>
+                            <input type="date" class="form-control" name="lastCalvingDate" id="cattle-lastCalvingDate">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Last Heat Date</label>
+                            <input type="date" class="form-control" name="lastHeatDate" id="cattle-lastHeatDate">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Notes</label>
+                            <textarea class="form-control" name="notes" id="cattle-notes"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save</button>
+                        <button type="button" class="btn btn-danger" onclick="hideForm(this)">
+                            <i class="fas fa-times"></i> Cancel
+                        </button>
+                    </form>
+                </div>
+
+                <div style="margin: 1.5rem;">
+                    <button class="btn btn-primary" onclick="showCattleForm()">
+                        <i class="fas fa-plus"></i> Add Cattle
+                    </button>
+                </div>
+
+                <div class="table-container">
+                    <h2>Cattle Records</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Breed</th>
+                                <th>Status</th>
+                                <th>Age</th>
+                                <th>Heat Cycle</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${cattleData.map((cow, index) => {
+                                const lastHeat = cow.lastHeatDate ? new Date(cow.lastHeatDate) : null;
+                                let heatStatus = 'Normal';
+                                let badgeClass = 'bg-success';
+                                
+                                if (lastHeat) {
+                                    const daysSinceHeat = (new Date() - lastHeat) / (1000 * 60 * 60 * 24);
+                                    if (daysSinceHeat >= 18 && daysSinceHeat <= 24) {
+                                        heatStatus = 'In Heat';
+                                        badgeClass = 'bg-warning';
+                                    } else if (daysSinceHeat > 24) {
+                                        heatStatus = 'Overdue';
+                                        badgeClass = 'bg-danger';
+                                    }
+                                } else {
+                                    heatStatus = 'No data';
+                                    badgeClass = 'bg-secondary';
+                                }
+
+                                // Calculate age if DOB is available
+                                let age = '-';
+                                if (cow.dob) {
+                                    const dob = new Date(cow.dob);
+                                    const ageInMonths = (new Date() - dob) / (1000 * 60 * 60 * 24 * 30.44);
+                                    if (ageInMonths < 12) {
+                                        age = `${Math.floor(ageInMonths)} months`;
+                                    } else {
+                                        age = `${Math.floor(ageInMonths / 12)} years`;
+                                    }
+                                }
+
+                                return `
+                                    <tr>
+                                        <td>${cow.id}</td>
+                                        <td>${cow.name || '-'}</td>
+                                        <td>${cow.breed}</td>
+                                        <td>${cow.status}</td>
+                                        <td>${age}</td>
+                                        <td><span class="badge ${badgeClass}">${heatStatus}</span></td>
+                                        <td class="action-buttons">
+                                            <button class="btn btn-warning btn-sm" onclick="editCattle(${index})">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-danger btn-sm" onclick="deleteCattle(${index})">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                `;
+                            }).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+
+            document.getElementById('page-content').innerHTML = html;
+            
+            // Add form submission handler
+            const form = document.getElementById('add-cattle-form');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    saveCattle(this);
+                });
+            }
+        }
+
+        function showCattleForm() {
+            const form = document.getElementById('cattle-form');
+            form.style.display = 'block';
+            document.getElementById('cattle-form-title').textContent = 'Add New Cattle';
+            document.getElementById('cattle-edit-index').value = '-1';
+            document.getElementById('add-cattle-form').reset();
+        }
+
+        function editCattle(index) {
+            const cow = cattleData[index];
+            const form = document.getElementById('cattle-form');
+            form.style.display = 'block';
+            document.getElementById('cattle-form-title').textContent = 'Edit Cattle';
+            document.getElementById('cattle-edit-index').value = index;
+            
+            // Fill form with cattle data
+            document.getElementById('cattle-id').value = cow.id;
+            document.getElementById('cattle-name').value = cow.name || '';
+            document.getElementById('cattle-breed').value = cow.breed;
+            document.getElementById('cattle-status').value = cow.status;
+            document.getElementById('cattle-dob').value = cow.dob || '';
+            document.getElementById('cattle-lastCalvingDate').value = cow.lastCalvingDate || '';
+            document.getElementById('cattle-lastHeatDate').value = cow.lastHeatDate || '';
+            document.getElementById('cattle-notes').value = cow.notes || '';
+        }
+
+        function deleteCattle(index) {
+            if (confirm('Are you sure you want to delete this cattle record?')) {
+                cattleData.splice(index, 1);
+                localStorage.setItem('cattleData', JSON.stringify(cattleData));
+                loadCattlePage();
+            }
+        }
+
+        function saveCattle(form) {
+            const formData = new FormData(form);
+            const editIndex = parseInt(formData.get('cattle-edit-index'));
+            
+            const cattle = {
+                id: formData.get('id'),
+                name: formData.get('name'),
+                breed: formData.get('breed'),
+                status: formData.get('status'),
+                dob: formData.get('dob'),
+                lastCalvingDate: formData.get('lastCalvingDate'),
+                lastHeatDate: formData.get('lastHeatDate'),
+                notes: formData.get('notes')
+            };
+            
+            if (editIndex >= 0) {
+                // Update existing record
+                cattleData[editIndex] = cattle;
+            } else {
+                // Add new record
+                cattleData.push(cattle);
+            }
+            
+            localStorage.setItem('cattleData', JSON.stringify(cattleData));
+            loadCattlePage();
+        }
+
+        // ===== MILK PAGE =====
+        function loadMilkPage() {
+            const html = `
+                <div class="form-container" style="display: none;" id="milk-form">
+                    <h2 id="milk-form-title">Add Milk Record</h2>
+                    <form id="add-milk-form">
+                        <input type="hidden" id="milk-edit-index" value="-1">
+                        <div class="form-group">
+                            <label class="form-label">Date</label>
+                            <input type="date" class="form-control" name="date" id="milk-date" required value="${new Date().toISOString().split('T')[0]}">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Cow ID</label>
+                            <select class="form-control" name="cowId" id="milk-cowId" required>
+                                <option value="">Select Cow</option>
+                                ${cattleData.map(cow => `
+                                    <option value="${cow.id}">${cow.id}${cow.name ? ' (' + cow.name + ')' : ''}</option>
+                                `).join('')}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Amount (Liters)</label>
+                            <input type="number" step="0.1" class="form-control" name="amount" id="milk-amount" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Time</label>
+                            <input type="time" class="form-control" name="time" id="milk-time" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Milking Session</label>
+                            <select class="form-control" name="session" id="milk-session" required>
+                                <option value="Morning">Morning</option>
+                                <option value="Afternoon">Afternoon</option>
+                                <option value="Evening">Evening</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Notes</label>
+                            <textarea class="form-control" name="notes" id="milk-notes"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save</button>
+                        <button type="button" class="btn btn-danger" onclick="hideForm(this)">
+                            <i class="fas fa-times"></i> Cancel
+                        </button>
+                    </form>
+                </div>
+
+                <div style="margin: 1.5rem;">
+                    <button class="btn btn-primary" onclick="showMilkForm()">
+                        <i class="fas fa-plus"></i> Add Milk Record
+                    </button>
+                </div>
+
+                <div class="table-container">
+                    <h2>Milk Records</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Cow ID</th>
+                                <th>Amount (L)</th>
+                                <th>Time</th>
+                                <th>Session</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${milkData.map((record, index) => `
+                                <tr>
+                                    <td>${record.date}</td>
+                                    <td>${record.cowId}</td>
+                                    <td>${record.amount}</td>
+                                    <td>${record.time}</td>
+                                    <td>${record.session || '-'}</td>
+                                    <td class="action-buttons">
+                                        <button class="btn btn-warning btn-sm" onclick="editMilkRecord(${index})">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-danger btn-sm" onclick="deleteMilkRecord(${index})">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+
+            document.getElementById('page-content').innerHTML = html;
+            
+            // Add form submission handler
+            const form = document.getElementById('add-milk-form');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    saveMilkRecord(this);
+                });
+            }
+        }
+
+        function showMilkForm() {
+            const form = document.getElementById('milk-form');
+            form.style.display = 'block';
+            document.getElementById('milk-form-title').textContent = 'Add Milk Record';
+            document.getElementById('milk-edit-index').value = '-1';
+            document.getElementById('add-milk-form').reset();
+            document.getElementById('milk-date').value = new Date().toISOString().split('T')[0];
+        }
+
+        function editMilkRecord(index) {
+            const record = milkData[index];
+            const form = document.getElementById('milk-form');
+            form.style.display = 'block';
+            document.getElementById('milk-form-title').textContent = 'Edit Milk Record';
+            document.getElementById('milk-edit-index').value = index;
+            
+            // Fill form with record data
+            document.getElementById('milk-date').value = record.date;
+            document.getElementById('milk-cowId').value = record.cowId;
+            document.getElementById('milk-amount').value = record.amount;
+            document.getElementById('milk-time').value = record.time;
+            document.getElementById('milk-session').value = record.session || 'Morning';
+            document.getElementById('milk-notes').value = record.notes || '';
+        }
+
+        function deleteMilkRecord(index) {
+            if (confirm('Are you sure you want to delete this milk record?')) {
+                milkData.splice(index, 1);
+                localStorage.setItem('milkData', JSON.stringify(milkData));
+                loadMilkPage();
+            }
+        }
+
+        function saveMilkRecord(form) {
+            const formData = new FormData(form);
+            const editIndex = parseInt(formData.get('milk-edit-index'));
+            
+            const milkRecord = {
+                date: formData.get('date'),
+                cowId: formData.get('cowId'),
+                amount: formData.get('amount'),
+                time: formData.get('time'),
+                session: formData.get('session'),
+                notes: formData.get('notes')
+            };
+            
+            if (editIndex >= 0) {
+                // Update existing record
+                milkData[editIndex] = milkRecord;
+            } else {
+                // Add new record
+                milkData.push(milkRecord);
+            }
+            
+            localStorage.setItem('milkData', JSON.stringify(milkData));
+            loadMilkPage();
+        }
+
+        // ===== HEALTH PAGE =====
+        function loadHealthPage() {
+            const html = `
+                <div class="form-container" style="display: none;" id="health-form">
+                    <h2 id="health-form-title">Add Health Record</h2>
+                    <form id="add-health-form">
+                        <input type="hidden" id="health-edit-index" value="-1">
+                        <div class="form-group">
+                            <label class="form-label">Date</label>
+                            <input type="date" class="form-control" name="date" id="health-date" required value="${new Date().toISOString().split('T')[0]}">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Cow ID</label>
+                            <select class="form-control" name="cowId" id="health-cowId" required>
+                                <option value="">Select Cow</option>
+                                ${cattleData.map(cow => `
+                                    <option value="${cow.id}">${cow.id}${cow.name ? ' (' + cow.name + ')' : ''}</option>
+                                `).join('')}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Issue</label>
+                            <input type="text" class="form-control" name="issue" id="health-issue" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Treatment</label>
+                            <input type="text" class="form-control" name="treatment" id="health-treatment">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Status</label>
+                            <select class="form-control" name="status" id="health-status" required>
+                                <option value="Pending">Pending</option>
+                                <option value="Treated">Treated</option>
+                                <option value="Recovered">Recovered</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Vet Name</label>
+                            <input type="text" class="form-control" name="vetName" id="health-vetName">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Cost (KSh)</label>
+                            <input type="number" class="form-control" name="cost" id="health-cost">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Next Checkup Date</label>
+                            <input type="date" class="form-control" name="nextCheckupDate" id="health-nextCheckupDate">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Notes</label>
+                            <textarea class="form-control" name="notes" id="health-notes"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save</button>
+                        <button type="button" class="btn btn-danger" onclick="hideForm(this)">
+                            <i class="fas fa-times"></i> Cancel
+                        </button>
+                    </form>
+                </div>
+
+                <div style="margin: 1.5rem;">
+                    <button class="btn btn-primary" onclick="showHealthForm()">
+                        <i class="fas fa-plus"></i> Add Health Record
+                    </button>
+                </div>
+
+                <div class="table-container">
+                    <h2>Health Records</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Cow ID</th>
+                                <th>Issue</th>
+                                <th>Treatment</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${healthData.map((record, index) => {
+                                let badgeClass = 'bg-secondary';
+                                if (record.status === 'Pending') badgeClass = 'bg-danger';
+                                if (record.status === 'Treated') badgeClass = 'bg-warning';
+                                if (record.status === 'Recovered') badgeClass = 'bg-success';
+
+                                return `
+                                    <tr>
+                                        <td>${record.date}</td>
+                                        <td>${record.cowId}</td>
+                                        <td>${record.issue}</td>
+                                        <td>${record.treatment || '-'}</td>
+                                        <td><span class="badge ${badgeClass}">${record.status}</span></td>
+                                        <td class="action-buttons">
+                                            <button class="btn btn-warning btn-sm" onclick="editHealthRecord(${index})">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-danger btn-sm" onclick="deleteHealthRecord(${index})">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                `;
+                            }).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+
+            document.getElementById('page-content').innerHTML = html;
+            
+            // Add form submission handler
+            const form = document.getElementById('add-health-form');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    saveHealthRecord(this);
+                });
+            }
+        }
+
+        function showHealthForm() {
+            const form = document.getElementById('health-form');
+            form.style.display = 'block';
+            document.getElementById('health-form-title').textContent = 'Add Health Record';
+            document.getElementById('health-edit-index').value = '-1';
+            document.getElementById('add-health-form').reset();
+            document.getElementById('health-date').value = new Date().toISOString().split('T')[0];
+        }
+
+        function editHealthRecord(index) {
+            const record = healthData[index];
+            const form = document.getElementById('health-form');
+            form.style.display = 'block';
+            document.getElementById('health-form-title').textContent = 'Edit Health Record';
+            document.getElementById('health-edit-index').value = index;
+            
+            // Fill form with record data
+            document.getElementById('health-date').value = record.date;
+            document.getElementById('health-cowId').value = record.cowId;
+            document.getElementById('health-issue').value = record.issue;
+            document.getElementById('health-treatment').value = record.treatment || '';
+            document.getElementById('health-status').value = record.status;
+            document.getElementById('health-vetName').value = record.vetName || '';
+            document.getElementById('health-cost').value = record.cost || '';
+            document.getElementById('health-nextCheckupDate').value = record.nextCheckupDate || '';
+            document.getElementById('health-notes').value = record.notes || '';
+        }
+
+        function deleteHealthRecord(index) {
+            if (confirm('Are you sure you want to delete this health record?')) {
+                healthData.splice(index, 1);
+                localStorage.setItem('healthData', JSON.stringify(healthData));
+                loadHealthPage();
+            }
+        }
+
+        function saveHealthRecord(form) {
+            const formData = new FormData(form);
+            const editIndex = parseInt(formData.get('health-edit-index'));
+            
+            const healthRecord = {
+                date: formData.get('date'),
+                cowId: formData.get('cowId'),
+                issue: formData.get('issue'),
+                treatment: formData.get('treatment'),
+                status: formData.get('status'),
+                vetName: formData.get('vetName'),
+                cost: formData.get('cost'),
+                nextCheckupDate: formData.get('nextCheckupDate'),
+                notes: formData.get('notes')
+            };
+            
+            if (editIndex >= 0) {
+                // Update existing record
+                healthData[editIndex] = healthRecord;
+            } else {
+                // Add new record
+                healthData.push(healthRecord);
+            }
+            
+            localStorage.setItem('healthData', JSON.stringify(healthData));
+            loadHealthPage();
+        }
+
+        // ===== FEED PAGE =====
+        function loadFeedPage() {
+            const html = `
+                <div class="form-container" style="display: none;" id="feed-form">
+                    <h2 id="feed-form-title">Add Feed Record</h2>
+                    <form id="add-feed-form">
+                        <input type="hidden" id="feed-edit-index" value="-1">
+                        <div class="form-group">
+                            <label class="form-label">Date</label>
+                            <input type="date" class="form-control" name="date" id="feed-date" required value="${new Date().toISOString().split('T')[0]}">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Feed Type</label>
+                            <select class="form-control" name="type" id="feed-type" required>
+                                <option value="Grass">Grass</option>
+                                <option value="Hay">Hay</option>
+                                <option value="Silage">Silage</option>
+                                <option value="Dairy Meal">Dairy Meal</option>
+                                <option value="Mineral Salt">Mineral Salt</option>
+                                <option value="Concentrate">Concentrate</option>
+                                <option value="Bran">Bran</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Amount (kg)</label>
+                            <input type="number" step="0.1" class="form-control" name="amount" id="feed-amount" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Cost (KSh)</label>
+                            <input type="number" class="form-control" name="cost" id="feed-cost">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Supplier</label>
+                            <input type="text" class="form-control" name="supplier" id="feed-supplier">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Notes</label>
+                            <textarea class="form-control" name="notes" id="feed-notes"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save</button>
+                        <button type="button" class="btn btn-danger" onclick="hideForm(this)">
+                            <i class="fas fa-times"></i> Cancel
+                        </button>
+                    </form>
+                </div>
+
+                <div style="margin: 1.5rem;">
+                    <button class="btn btn-primary" onclick="showFeedForm()">
+                        <i class="fas fa-plus"></i> Add Feed Record
+                    </button>
+                </div>
+
+                <div class="table-container">
+                    <h2>Feed Records</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Feed Type</th>
+                                <th>Amount (kg)</th>
+                                <th>Cost (KSh)</th>
+                                <th>Supplier</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${feedData.map((record, index) => `
+                                <tr>
+                                    <td>${record.date}</td>
+                                    <td>${record.type}</td>
+                                    <td>${record.amount}</td>
+                                    <td>${record.cost || '-'}</td>
+                                    <td>${record.supplier || '-'}</td>
+                                    <td class="action-buttons">
+                                        <button class="btn btn-warning btn-sm" onclick="editFeedRecord(${index})">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-danger btn-sm" onclick="deleteFeedRecord(${index})">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+
+            document.getElementById('page-content').innerHTML = html;
+            
+            // Add form submission handler
+            const form = document.getElementById('add-feed-form');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    saveFeedRecord(this);
+                });
+            }
+        }
+
+        function showFeedForm() {
+            const form = document.getElementById('feed-form');
+            form.style.display = 'block';
+            document.getElementById('feed-form-title').textContent = 'Add Feed Record';
+            document.getElementById('feed-edit-index').value = '-1';
+            document.getElementById('add-feed-form').reset();
+            document.getElementById('feed-date').value = new Date().toISOString().split('T')[0];
+        }
+
+        function editFeedRecord(index) {
+            const record = feedData[index];
+            const form = document.getElementById('feed-form');
+            form.style.display = 'block';
+            document.getElementById('feed-form-title').textContent = 'Edit Feed Record';
+            document.getElementById('feed-edit-index').value = index;
+            
+            // Fill form with record data
+            document.getElementById('feed-date').value = record.date;
+            document.getElementById('feed-type').value = record.type;
+            document.getElementById('feed-amount').value = record.amount;
+            document.getElementById('feed-cost').value = record.cost || '';
+            document.getElementById('feed-supplier').value = record.supplier || '';
+            document.getElementById('feed-notes').value = record.notes || '';
+        }
+
+        function deleteFeedRecord(index) {
+            if (confirm('Are you sure you want to delete this feed record?')) {
+                feedData.splice(index, 1);
+                localStorage.setItem('feedData', JSON.stringify(feedData));
+                loadFeedPage();
+            }
+        }
+
+        function saveFeedRecord(form) {
+            const formData = new FormData(form);
+            const editIndex = parseInt(formData.get('feed-edit-index'));
+            
+            const feedRecord = {
+                date: formData.get('date'),
+                type: formData.get('type'),
+                amount: formData.get('amount'),
+                cost: formData.get('cost'),
+                supplier: formData.get('supplier'),
+                notes: formData.get('notes')
+            };
+            
+            if (editIndex >= 0) {
+                // Update existing record
+                feedData[editIndex] = feedRecord;
+            } else {
+                // Add new record
+                feedData.push(feedRecord);
+            }
+            
+            localStorage.setItem('feedData', JSON.stringify(feedData));
+            loadFeedPage();
+        }
+
+        // ===== NUTRITION PAGE =====
+        function loadNutritionPage() {
+            const html = `
+                <div class="form-container" style="display: none;" id="nutrition-form">
+                    <h2 id="nutrition-form-title">Add Nutrition Plan</h2>
+                    <form id="add-nutrition-form">
+                        <input type="hidden" id="nutrition-edit-index" value="-1">
+                        <div class="form-group">
+                            <label class="form-label">Cow ID</label>
+                            <select class="form-control" name="cowId" id="nutrition-cowId" required>
+                                <option value="">Select Cow</option>
+                                ${cattleData.map(cow => `
+                                    <option value="${cow.id}">${cow.id}${cow.name ? ' (' + cow.name + ')' : ''}</option>
+                                `).join('')}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Feed Type</label>
+                            <select class="form-control" name="feedType" id="nutrition-feedType" required>
+                                <option value="Grass">Grass</option>
+                                <option value="Hay">Hay</option>
+                                <option value="Silage">Silage</option>
+                                <option value="Dairy Meal">Dairy Meal</option>
+                                <option value="Mineral Salt">Mineral Salt</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Amount (kg per day)</label>
+                            <input type="number" step="0.1" class="form-control" name="amount" id="nutrition-amount" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Frequency</label>
+                            <input type="text" class="form-control" name="frequency" id="nutrition-frequency" required value="Twice daily">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Start Date</label>
+                            <input type="date" class="form-control" name="startDate" id="nutrition-startDate" value="${new Date().toISOString().split('T')[0]}">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">End Date</label>
+                            <input type="date" class="form-control" name="endDate" id="nutrition-endDate">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Notes</label>
+                            <textarea class="form-control" name="notes" id="nutrition-notes"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save</button>
+                        <button type="button" class="btn btn-danger" onclick="hideForm(this)">
+                            <i class="fas fa-times"></i> Cancel
+                        </button>
+                    </form>
+                </div>
+
+                <div style="margin: 1.5rem;">
+                    <button class="btn btn-primary" onclick="showNutritionForm()">
+                        <i class="fas fa-plus"></i> Add Nutrition Plan
+                    </button>
+                </div>
+
+                <div class="table-container">
+                    <h2>Nutrition Plans</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Cow ID</th>
+                                <th>Feed Type</th>
+                                <th>Amount (kg/day)</th>
+                                <th>Frequency</th>
+                                <th>Period</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${nutritionData.map((plan, index) => {
+                                const period = plan.startDate ? 
+                                    (plan.endDate ? `${plan.startDate} to ${plan.endDate}` : `From ${plan.startDate}`) : 
+                                    'Not specified';
+                                
+                                return `
+                                    <tr>
+                                        <td>${plan.cowId}</td>
+                                        <td>${plan.feedType}</td>
+                                        <td>${plan.amount}</td>
+                                        <td>${plan.frequency}</td>
+                                        <td>${period}</td>
+                                        <td class="action-buttons">
+                                            <button class="btn btn-warning btn-sm" onclick="editNutritionPlan(${index})">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-danger btn-sm" onclick="deleteNutritionPlan(${index})">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                `;
+                            }).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+
+            document.getElementById('page-content').innerHTML = html;
+            
+            // Add form submission handler
+            const form = document.getElementById('add-nutrition-form');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    saveNutritionPlan(this);
+                });
+            }
+        }
+
+        function showNutritionForm() {
+            const form = document.getElementById('nutrition-form');
+            form.style.display = 'block';
+            document.getElementById('nutrition-form-title').textContent = 'Add Nutrition Plan';
+            document.getElementById('nutrition-edit-index').value = '-1';
+            document.getElementById('add-nutrition-form').reset();
+            document.getElementById('nutrition-frequency').value = 'Twice daily';
+            document.getElementById('nutrition-startDate').value = new Date().toISOString().split('T')[0];
+        }
+
+        function editNutritionPlan(index) {
+            const plan = nutritionData[index];
+            const form = document.getElementById('nutrition-form');
+            form.style.display = 'block';
+            document.getElementById('nutrition-form-title').textContent = 'Edit Nutrition Plan';
+            document.getElementById('nutrition-edit-index').value = index;
+            
+            // Fill form with plan data
+            document.getElementById('nutrition-cowId').value = plan.cowId;
+            document.getElementById('nutrition-feedType').value = plan.feedType;
+            document.getElementById('nutrition-amount').value = plan.amount;
+            document.getElementById('nutrition-frequency').value = plan.frequency;
+            document.getElementById('nutrition-startDate').value = plan.startDate || '';
+            document.getElementById('nutrition-endDate').value = plan.endDate || '';
+            document.getElementById('nutrition-notes').value = plan.notes || '';
+        }
+
+        function deleteNutritionPlan(index) {
+            if (confirm('Are you sure you want to delete this nutrition plan?')) {
+                nutritionData.splice(index, 1);
+                localStorage.setItem('nutritionData', JSON.stringify(nutritionData));
+                loadNutritionPage();
+            }
+        }
+
+        function saveNutritionPlan(form) {
+            const formData = new FormData(form);
+            const editIndex = parseInt(formData.get('nutrition-edit-index'));
+            
+            const nutritionPlan = {
+                cowId: formData.get('cowId'),
+                feedType: formData.get('feedType'),
+                amount: formData.get('amount'),
+                frequency: formData.get('frequency'),
+                startDate: formData.get('startDate'),
+                endDate: formData.get('endDate'),
+                notes: formData.get('notes')
+            };
+            
+            if (editIndex >= 0) {
+                // Update existing record
+                nutritionData[editIndex] = nutritionPlan;
+            } else {
+                // Add new record
+                nutritionData.push(nutritionPlan);
+            }
+            
+            localStorage.setItem('nutritionData', JSON.stringify(nutritionData));
+            loadNutritionPage();
+        }
+
+        // ===== FINANCIALS PAGE =====
+        function loadFinancialsPage() {
+            const income = financialData.filter(f => f.type === 'Income').reduce((sum, f) => sum + (parseFloat(f.amount) || 0), 0);
+            const expenses = financialData.filter(f => f.type === 'Expense').reduce((sum, f) => sum + (parseFloat(f.amount) || 0), 0);
+            const profit = income - expenses;
+
+            // Calculate monthly financials
+            const monthlyFinancials = {};
+            const today = new Date();
+            for (let i = 11; i >= 0; i--) {
+                const date = new Date(today.getFullYear(), today.getMonth() - i, 1);
+                const monthYear = date.toLocaleString('default', { month: 'short', year: 'numeric' });
+                
+                const monthlyIncome = financialData
+                    .filter(f => f.type === 'Income' && new Date(f.date).getMonth() === date.getMonth() && new Date(f.date).getFullYear() === date.getFullYear())
+                    .reduce((sum, f) => sum + (parseFloat(f.amount) || 0), 0);
+                
+                const monthlyExpenses = financialData
+                    .filter(f => f.type === 'Expense' && new Date(f.date).getMonth() === date.getMonth() && new Date(f.date).getFullYear() === date.getFullYear())
+                    .reduce((sum, f) => sum + (parseFloat(f.amount) || 0), 0);
+                
+                monthlyFinancials[monthYear] = {
+                    income: monthlyIncome,
+                    expenses: monthlyExpenses,
+                    profit: monthlyIncome - monthlyExpenses
+                };
+            }
+
+            const html = `
+                <div class="card-grid">
+                    <div class="card">
+                        <div class="card-icon bg-success">
+                            <i class="fas fa-money-bill-wave"></i>
+                        </div>
+                        <h3>Total Income</h3>
+                        <p>KSh ${income.toLocaleString()}</p>
+                        <small>From all sources</small>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon bg-danger">
+                            <i class="fas fa-receipt"></i>
+                        </div>
+                        <h3>Total Expenses</h3>
+                        <p>KSh ${expenses.toLocaleString()}</p>
+                        <small>Feed, health, etc.</small>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon ${profit >= 0 ? 'bg-primary' : 'bg-warning'}">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h3>Profit/Loss</h3>
+                        <p>KSh ${profit.toLocaleString()}</p>
+                        <small>${profit >= 0 ? 'Profit' : 'Loss'}</small>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <h3>Monthly Financials</h3>
+                    <div id="financialChart"></div>
+                </div>
+
+                <div class="form-container" style="display: none;" id="financial-form">
+                    <h2 id="financial-form-title">Add Financial Record</h2>
+                    <form id="add-financial-form">
+                        <input type="hidden" id="financial-edit-index" value="-1">
+                        <div class="form-group">
+                            <label class="form-label">Date</label>
+                            <input type="date" class="form-control" name="date" id="financial-date" required value="${new Date().toISOString().split('T')[0]}">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Type</label>
+                            <select class="form-control" name="type" id="financial-type" required>
+                                <option value="Income">Income</option>
+                                <option value="Expense">Expense</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Category</label>
+                            <select class="form-control" name="category" id="financial-category" required>
+                                <option value="Milk Sales">Milk Sales</option>
+                                <option value="Feed">Feed</option>
+                                <option value="Health">Health</option>
+                                <option value="Labor">Labor</option>
+                                <option value="Equipment">Equipment</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Amount (KSh)</label>
+                            <input type="number" class="form-control" name="amount" id="financial-amount" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Description</label>
+                            <input type="text" class="form-control" name="description" id="financial-description">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Payment Method</label>
+                            <select class="form-control" name="paymentMethod" id="financial-paymentMethod">
+                                <option value="Cash">Cash</option>
+                                <option value="M-Pesa">M-Pesa</option>
+                                <option value="Bank Transfer">Bank Transfer</option>
+                                <option value="Cheque">Cheque</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Reference</label>
+                            <input type="text" class="form-control" name="reference" id="financial-reference">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save</button>
+                        <button type="button" class="btn btn-danger" onclick="hideForm(this)">
+                            <i class="fas fa-times"></i> Cancel
+                        </button>
+                    </form>
+                </div>
+
+                <div style="margin: 1.5rem;">
+                    <button class="btn btn-primary" onclick="showFinancialForm()">
+                        <i class="fas fa-plus"></i> Add Financial Record
+                    </button>
+                </div>
+
+                <div class="table-container">
+                    <h2>Financial Records</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Type</th>
+                                <th>Category</th>
+                                <th>Amount (KSh)</th>
+                                <th>Description</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${financialData.map((record, index) => {
+                                const badgeClass = record.type === 'Income' ? 'bg-success' : 'bg-danger';
+                                return `
+                                    <tr>
+                                        <td>${record.date}</td>
+                                        <td><span class="badge ${badgeClass}">${record.type}</span></td>
+                                        <td>${record.category}</td>
+                                        <td>${parseFloat(record.amount).toLocaleString()}</td>
+                                        <td>${record.description || '-'}</td>
+                                        <td class="action-buttons">
+                                            <button class="btn btn-warning btn-sm" onclick="editFinancialRecord(${index})">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-danger btn-sm" onclick="deleteFinancialRecord(${index})">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                `;
+                            }).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+
+            document.getElementById('page-content').innerHTML = html;
+            
+            // Add form submission handler
+            const form = document.getElementById('add-financial-form');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    saveFinancialRecord(this);
+                });
+            }
+
+            // Render financial chart
+            renderFinancialChart(monthlyFinancials);
+        }
+
+        function showFinancialForm() {
+            const form = document.getElementById('financial-form');
+            form.style.display = 'block';
+            document.getElementById('financial-form-title').textContent = 'Add Financial Record';
+            document.getElementById('financial-edit-index').value = '-1';
+            document.getElementById('add-financial-form').reset();
+            document.getElementById('financial-date').value = new Date().toISOString().split('T')[0];
+        }
+
+        function editFinancialRecord(index) {
+            const record = financialData[index];
+            const form = document.getElementById('financial-form');
+            form.style.display = 'block';
+            document.getElementById('financial-form-title').textContent = 'Edit Financial Record';
+            document.getElementById('financial-edit-index').value = index;
+            
+            // Fill form with record data
+            document.getElementById('financial-date').value = record.date;
+            document.getElementById('financial-type').value = record.type;
+            document.getElementById('financial-category').value = record.category;
+            document.getElementById('financial-amount').value = record.amount;
+            document.getElementById('financial-description').value = record.description || '';
+            document.getElementById('financial-paymentMethod').value = record.paymentMethod || 'Cash';
+            document.getElementById('financial-reference').value = record.reference || '';
+        }
+
+        function deleteFinancialRecord(index) {
+            if (confirm('Are you sure you want to delete this financial record?')) {
+                financialData.splice(index, 1);
+                localStorage.setItem('financialData', JSON.stringify(financialData));
+                loadFinancialsPage();
+            }
+        }
+
+        function saveFinancialRecord(form) {
+            const formData = new FormData(form);
+            const editIndex = parseInt(formData.get('financial-edit-index'));
+            
+            const financialRecord = {
+                date: formData.get('date'),
+                type: formData.get('type'),
+                category: formData.get('category'),
+                amount: formData.get('amount'),
+                description: formData.get('description'),
+                paymentMethod: formData.get('paymentMethod'),
+                reference: formData.get('reference')
+            };
+            
+            if (editIndex >= 0) {
+                // Update existing record
+                financialData[editIndex] = financialRecord;
+            } else {
+                // Add new record
+                financialData.push(financialRecord);
+            }
+            
+            localStorage.setItem('financialData', JSON.stringify(financialData));
+            loadFinancialsPage();
+        }
+
+        // ===== REPORTS PAGE =====
+        function loadReportsPage() {
+            // Calculate milk production by cow
+            const milkByCow = {};
+            cattleData.forEach(cow => {
+                const cowMilk = milkData
+                    .filter(record => record.cowId === cow.id)
+                    .reduce((sum, record) => sum + parseFloat(record.amount), 0);
+                if (cowMilk > 0) {
+                    milkByCow[cow.id] = cowMilk;
+                }
+            });
+
+            // Calculate feed costs by type
+            const feedCosts = {};
+            feedData.forEach(record => {
+                const cost = parseFloat(record.cost) || 0;
+                if (feedCosts[record.type]) {
+                    feedCosts[record.type] += cost;
+                } else {
+                    feedCosts[record.type] = cost;
+                }
+            });
+
+            const html = `
+                <div class="card-grid">
+                    <div class="card">
+                        <div class="card-icon bg-primary">
+                            <i class="fas fa-chart-pie"></i>
+                        </div>
+                        <h3>Milk Production</h3>
+                        <p>${milkData.reduce((sum, record) => sum + parseFloat(record.amount), 0).toFixed(1)} L</p>
+                        <small>Total production</small>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon bg-success">
+                            <i class="fas fa-money-bill-wave"></i>
+                        </div>
+                        <h3>Total Income</h3>
+                        <p>KSh ${financialData.filter(f => f.type === 'Income').reduce((sum, f) => sum + (parseFloat(f.amount) || 0), 0).toLocaleString()}</p>
+                        <small>From all sources</small>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <h3>Milk Production by Cow (Liters)</h3>
+                    <div id="milkByCowChart"></div>
+                </div>
+
+                <div class="chart-container">
+                    <h3>Feed Costs by Type (KSh)</h3>
+                    <div id="feedCostsChart"></div>
+                </div>
+
+                <div class="table-container">
+                    <h3>Top Producing Cows</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Cow ID</th>
+                                <th>Name</th>
+                                <th>Total Milk (L)</th>
+                                <th>Average Daily (L)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${Object.entries(milkByCow)
+                                .sort((a, b) => b[1] - a[1])
+                                .slice(0, 5)
+                                .map(([cowId, totalMilk]) => {
+                                    const cow = cattleData.find(c => c.id === cowId);
+                                    const days = new Set(milkData.filter(r => r.cowId === cowId).map(r => r.date)).size || 1;
+                                    const avgDaily = (totalMilk / days).toFixed(1);
+                                    
+                                    return `
+                                        <tr>
+                                            <td>${cowId}</td>
+                                            <td>${cow?.name || '-'}</td>
+                                            <td>${totalMilk.toFixed(1)}</td>
+                                            <td>${avgDaily}</td>
+                                        </tr>
+                                    `;
+                                }).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+
+            document.getElementById('page-content').innerHTML = html;
+
+            // Render reports charts
+            renderMilkByCowChart(milkByCow);
+            renderFeedCostsChart(feedCosts);
+        }
+
+        // ===== QUICK ADD MENU =====
+        function showQuickAddMenu() {
+            const html = `
+                <div class="form-container" style="position: absolute; right: 20px; top: 70px; width: 250px; z-index: 1000;">
+                    <h3>Quick Add</h3>
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="padding: 0.5rem 0; border-bottom: 1px solid #eee;">
+                            <a href="#" onclick="loadPage('milk'); showMilkForm(); return false;" style="display: flex; align-items: center; color: var(--dark); text-decoration: none;">
+                                <i class="fas fa-wine-bottle" style="margin-right: 10px;"></i>
+                                Milk Record
+                            </a>
+                        </li>
+                        <li style="padding: 0.5rem 0; border-bottom: 1px solid #eee;">
+                            <a href="#" onclick="loadPage('health'); showHealthForm(); return false;" style="display: flex; align-items: center; color: var(--dark); text-decoration: none;">
+                                <i class="fas fa-syringe" style="margin-right: 10px;"></i>
+                                Health Record
+                            </a>
+                        </li>
+                        <li style="padding: 0.5rem 0; border-bottom: 1px solid #eee;">
+                            <a href="#" onclick="loadPage('feed'); showFeedForm(); return false;" style="display: flex; align-items: center; color: var(--dark); text-decoration: none;">
+                                <i class="fas fa-carrot" style="margin-right: 10px;"></i>
+                                Feed Record
+                            </a>
+                        </li>
+                        <li style="padding: 0.5rem 0;">
+                            <a href="#" onclick="loadPage('financials'); showFinancialForm(); return false;" style="display: flex; align-items: center; color: var(--dark); text-decoration: none;">
+                                <i class="fas fa-dollar-sign" style="margin-right: 10px;"></i>
+                                Financial Record
+                            </a>
+                        </li>
+                    </ul>
+                    <button type="button" class="btn btn-danger" onclick="hideForm(this)" style="margin-top: 1rem; width: 100%;">
+                        <i class="fas fa-times"></i> Close
+                    </button>
+                </div>
+            `;
+            
+            const existingMenu = document.querySelector('.form-container[style*="position: absolute"]');
+            if (existingMenu) {
+                existingMenu.remove();
+            } else {
+                document.getElementById('page-content').insertAdjacentHTML('afterbegin', html);
+            }
+        }
+
+        // ===== CHART FUNCTIONS =====
+        function renderMilkChart(weeklyMilk) {
+            const dates = Object.keys(weeklyMilk);
+            const amounts = Object.values(weeklyMilk);
+            
+            const options = {
+                series: [{
+                    name: 'Milk Production',
+                    data: amounts
+                }],
+                chart: {
+                    height: 350,
+                    type: 'line',
+                    zoom: {
+                        enabled: false
+                    }
+                },
+                dataLabels: {
+                    enabled: false
+                },
+                stroke: {
+                    curve: 'straight'
+                },
+                title: {
+                    text: 'Daily Milk Production (Liters)',
+                    align: 'left'
+                },
+                grid: {
+                    row: {
+                        colors: ['#f3f3f3', 'transparent'],
+                        opacity: 0.5
+                    }
+                },
+                xaxis: {
+                    categories: dates,
+                },
+                colors: ['#6fb98f']
+            };
+
+            const chart = new ApexCharts(document.querySelector("#milkChart"), options);
+            chart.render();
+        }
+
+        function renderFinancialChart(monthlyFinancials) {
+            const months = Object.keys(monthlyFinancials);
+            const income = Object.values(monthlyFinancials).map(m => m.income);
+            const expenses = Object.values(monthlyFinancials).map(m => m.expenses);
+            const profit = Object.values(monthlyFinancials).map(m => m.profit);
+            
+            const options = {
+                series: [{
+                    name: 'Income',
+                    data: income
+                }, {
+                    name: 'Expenses',
+                    data: expenses
+                }, {
+                    name: 'Profit',
+                    data: profit
+                }],
+                chart: {
+                    type: 'bar',
+                    height: 350,
+                    stacked: false,
+                },
+                plotOptions: {
+                    bar: {
+                        horizontal: false,
+                        columnWidth: '55%',
+                        endingShape: 'rounded'
+                    },
+                },
+                dataLabels: {
+                    enabled: false
+                },
+                stroke: {
+                    show: true,
+                    width: 2,
+                    colors: ['transparent']
+                },
+                xaxis: {
+                    categories: months,
+                },
+                yaxis: {
+                    title: {
+                        text: 'Amount (KSh)'
+                    }
+                },
+                fill: {
+                    opacity: 1
+                },
+                colors: ['#28a745', '#dc3545', '#007bff'],
+                tooltip: {
+                    y: {
+                        formatter: function (val) {
+                            return "KSh " + val.toLocaleString()
+                        }
+                    }
+                }
+            };
+
+            const chart = new ApexCharts(document.querySelector("#financialChart"), options);
+            chart.render();
+        }
+
+        function renderMilkByCowChart(milkByCow) {
+            const cowIds = Object.keys(milkByCow);
+            const amounts = Object.values(milkByCow);
+            
+            const options = {
+                series: amounts,
+                chart: {
+                    width: '100%',
+                    type: 'pie',
+                },
+                labels: cowIds,
+                responsive: [{
+                    breakpoint: 480,
+                    options: {
+                        chart: {
+                            width: 200
+                        },
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }],
+                colors: ['#2c7873', '#6fb98f', '#004445', '#28a745', '#007bff', '#ffc107']
+            };
+
+            const chart = new ApexCharts(document.querySelector("#milkByCowChart"), options);
+            chart.render();
+        }
+
+        function renderFeedCostsChart(feedCosts) {
+            const feedTypes = Object.keys(feedCosts);
+            const costs = Object.values(feedCosts);
+            
+            const options = {
+                series: [{
+                    name: 'Cost (KSh)',
+                    data: costs
+                }],
+                chart: {
+                    type: 'bar',
+                    height: 350
+                },
+                plotOptions: {
+                    bar: {
+                        borderRadius: 4,
+                        horizontal: true,
+                    }
+                },
+                dataLabels: {
+                    enabled: false
+                },
+                xaxis: {
+                    categories: feedTypes,
+                },
+                colors: ['#004445']
+            };
+
+            const chart = new ApexCharts(document.querySelector("#feedCostsChart"), options);
+            chart.render();
+        }
+
+        // ===== DATA FUNCTIONS =====
+        function calculateTodaysMilk() {
+            const today = new Date().toISOString().split('T')[0];
+            return milkData
+                .filter(record => record.date === today)
+                .reduce((sum, record) => sum + parseFloat(record.amount), 0)
+                .toFixed(1);
+        }
+    </script>
+    </body>
+</html>
